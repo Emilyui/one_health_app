@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}My Profile{% endblock %}
+
+{% block head %}
+    <!-- QR Code Generation Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.js"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <h2>Your Profile & QR Code</h2>
+        <p>This QR code contains your basic user information. In a real system, it would contain a secure token for authentication.</p>
+        <div id="qrcode"></div>
+        <p class="info"><strong>For your project demonstration:</strong> You can explain that this QR code could be scanned by a companion mobile app or a terminal at a clinic to log the user in instantly, simulating a secure, passwordless login flow.</p>
+    </div>
+
+<script>
+    // The data passed from the Flask backend
+    const qrData = '{{ qr_data|safe }}';
+
+    // Generate the QR code
+    const typeNumber = 4;
+    const errorCorrectionLevel = 'L';
+    const qr = qrcode(typeNumber, errorCorrectionLevel);
+    qr.addData(qrData);
+    qr.make();
+    document.getElementById('qrcode').innerHTML = qr.createImgTag();
+</script>
+{% endblock %}
