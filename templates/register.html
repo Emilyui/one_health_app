@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Register{% endblock %}
+{% block content %}
+    <div class="form-container">
+        <h2>Register</h2>
+        <p class="info">User roles are assigned automatically:
+            <br>Email containing '@health.gov' = Doctor
+            <br>Email containing '@research.edu' = Researcher
+            <br>All others = Citizen
+        </p>
+        <form method="post">
+            <label for="email">Email</label>
+            <input type="email" name="email" id="email" required>
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" required>
+            <button type="submit">Register</button>
+        </form>
+    </div>
+{% endblock %}
