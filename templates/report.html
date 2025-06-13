@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}New Report{% endblock %}
+{% block content %}
+<div class="form-container">
+    <h2>Submit a Health Report</h2>
+    <form method="post" id="report-form">
+        <label for="category">Category</label>
+        <select name="category" id="category" required>
+            <option value="Human">Human Health</option>
+            <option value="Animal">Animal Sighting/Health</option>
+            <option value="Plant">Plant Disease</option>
+        </select>
+
+        <label for="description">Description</label>
+        <textarea name="description" id="description" rows="4" required></textarea>
+
+        <label for="location">Location</label>
+        <p class="info">Click the button to get your current location.</p>
+        <button type="button" onclick="getLocation()">Get My Location</button>
+        <input type="hidden" name="lat" id="lat" required>
+        <input type="hidden" name="lon" id="lon" required>
+        <p id="location-status"></p>
+        
+        <label class="checkbox-label">
+            <input type="checkbox" name="is_public" value="true">
+            Make this record public (anonymized data will be visible to researchers)
+        </label>
+        
+        <button type="submit">Submit Report</button>
+    </form>
+</div>
+
+<script>
+    function getLocation() {
+        const status = document.getElementById('location-status');
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    document.getElementById('lat').value = position.coords.latitude;
+                    document.getElementById('lon').value = position.coords.longitude;
+                    status.textContent = `Location captured: Lat ${position.coords.latitude.toFixed(4)}, Lon ${position.coords.longitude.toFixed(4)}`;
+                    status.style.color = 'green';
+                },
+                () => {
+                    status.textContent = 'Unable to retrieve your location.';
+                    status.style.color = 'red';
+                }
+            );
+        } else {
+            status.textContent = 'Geolocation is not supported by your browser.';
+            status.style.color = 'red';
+        }
+    }
+</script>
+{% endblock %}
