@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block head %}
+    <!-- Leaflet (Map) CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Chart.js (Charts) JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+    <h2>One Health Dashboard <span class="role-badge">{{ user_role }} View</span></h2>
+    <div class="dashboard-container">
+        <div id="map"></div>
+        <div class="chart-container">
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+
+<script>
+    // Initialize the map and set its view to a default location
+    const map = L.map('map').setView([9.0820, 8.6753], 6); // Centered on Nigeria
+
+    // Add a tile layer to the map (e.g., OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Fetch data from our API and populate the map and chart
+    fetch('/api/data')
+        .then(response => response.json())
+        .then(data => {
+            const categoryCounts = { 'Human': 0, 'Animal': 0, 'Plant': 0 };
+            
+            data.forEach(record => {
+                // Add a marker to the map
+                let color = 'blue';
+                if (record.category === 'Animal') color = 'orange';
+                if (record.category === 'Plant') color = 'green';
+                
+                L.circleMarker([record.lat, record.lon], {
+                    color: color,
+                    radius: 8
+                }).addTo(map)
+                .bindPopup(`<b>${record.category} Report</b><br>Reporter: ${record.reporter}<br>Desc: ${record.desc}`);
+
+                // Update chart data
+                if (record.category in categoryCounts) {
+                    categoryCounts[record.category]++;
+                }
+            });
+
+            // Update the chart
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(categoryCounts),
+                    datasets: [{
+                        label: 'Reports by Category',
+                        data: Object.values(categoryCounts),
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 159, 64, 0.7)',
+                            'rgba(75, 192, 192, 0.7)'
+                        ],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: 'Report Categories' }
+                    }
+                }
+            });
+        });
+</script>
+{% endblock %}
